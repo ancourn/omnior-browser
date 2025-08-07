@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, Refresh, Home, Star, Settings, History, BookOpen, Search, Plus, MoreVertical, Bot, Shield, Globe, Wrench } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RefreshCw, Home, Star, Settings, History, BookOpen, Search, Plus, MoreVertical, Bot, Shield, Globe, Wrench } from 'lucide-react';
 import { useBrowserStore } from '../store/browserStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -102,7 +102,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           {isLoading ? (
             <div className="spinner" />
           ) : (
-            <Refresh className="w-4 h-4" />
+            <RefreshCw className="w-4 h-4" />
           )}
         </button>
         <button

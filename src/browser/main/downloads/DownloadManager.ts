@@ -157,18 +157,18 @@ export class DownloadManager {
           ]
         });
 
-        if (result.canceled) {
+        if ((result as any).canceled) {
           this.downloads.delete(downloadId);
           throw new Error('Download cancelled by user');
         }
 
-        downloadData.savePath = result.filePath || downloadData.savePath;
+        downloadData.savePath = (result as any).filePath || downloadData.savePath;
         downloadData.filename = this.getFilenameFromPath(downloadData.savePath);
       }
 
       // Create download item
       const { session } = await import('electron');
-      const downloadItem = await session.defaultSession.downloadURL(options.url);
+      const downloadItem = (await session.defaultSession.downloadURL(options.url)) as any;
 
       // Set save path
       downloadItem.setSavePath(downloadData.savePath);

@@ -103,8 +103,8 @@ export const TranslationManager: React.FC<TranslationManagerProps> = ({ tabId, c
     };
 
     const key = `${sourceLang}-${targetLang}`;
-    if (mockTranslations[key]) {
-      return mockTranslations[key];
+    if (mockTranslations[key] && mockTranslations[key][targetLang]) {
+      return mockTranslations[key][targetLang];
     }
 
     return `[Translated from ${sourceLang} to ${targetLang}]: ${text}`;
@@ -127,7 +127,7 @@ export const TranslationManager: React.FC<TranslationManagerProps> = ({ tabId, c
       const detected = await detectLanguage(pageText);
       
       // Translate if source and target are different
-      let translated = null;
+      let translated: string | null = null;
       if (detected !== translation.targetLanguage) {
         translated = await translateText(pageText, detected, translation.targetLanguage);
       }

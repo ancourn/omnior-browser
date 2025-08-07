@@ -271,7 +271,6 @@ export class ToolboxManager {
         webPreferences: {
           nodeIntegration: false,
           contextIsolation: true,
-          enableRemoteModule: false,
           webSecurity: true,
           preload: (await import('path')).join(__dirname, '../../renderer/preload.js')
         },
@@ -323,7 +322,6 @@ export class ToolboxManager {
         webPreferences: {
           nodeIntegration: false,
           contextIsolation: true,
-          enableRemoteModule: false,
           webSecurity: true,
           sandbox: tool.permissions.includes('sandbox'),
           preload: (await import('path')).join(__dirname, '../../renderer/preload.js')

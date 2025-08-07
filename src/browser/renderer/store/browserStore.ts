@@ -28,6 +28,11 @@ interface BrowserState {
   leftTabId: string | null;
   rightTabId: string | null;
   
+  // Getters
+  activeTab: Tab | null;
+  getLeftTab: Tab | null;
+  getRightTab: Tab | null;
+  
   // Actions
   // Tab Actions
   addTab: (tab: Tab) => void;
@@ -84,6 +89,9 @@ export const useBrowserStore = create<BrowserState>((set, get) => ({
   splitViewOrientation: 'horizontal',
   leftTabId: null,
   rightTabId: null,
+  activeTab: null,
+  getLeftTab: null,
+  getRightTab: null,
 
   // Tab Actions
   addTab: (tab) => {
@@ -101,7 +109,8 @@ export const useBrowserStore = create<BrowserState>((set, get) => ({
       
       return {
         tabs: newTabs,
-        activeTabId: tab.isActive ? tab.id : state.activeTabId
+        activeTabId: tab.isActive ? tab.id : state.activeTabId,
+        activeTab: tab.isActive ? tab : state.activeTab
       };
     });
   },
@@ -110,18 +119,24 @@ export const useBrowserStore = create<BrowserState>((set, get) => ({
     set((state) => {
       const newTabs = state.tabs.filter(tab => tab.id !== tabId);
       let newActiveTabId = state.activeTabId;
+      let newActiveTab = state.activeTab;
       
       // If we removed the active tab, activate another one
       if (state.activeTabId === tabId && newTabs.length > 0) {
         const removedTabIndex = state.tabs.findIndex(tab => tab.id === tabId);
-        const newActiveTab = newTabs[Math.max(0, removedTabIndex - 1)];
-        newActiveTab.isActive = true;
-        newActiveTabId = newActiveTab.id;
+        const newActiveTabObj = newTabs[Math.max(0, removedTabIndex - 1)];
+        newActiveTabObj.isActive = true;
+        newActiveTabId = newActiveTabObj.id;
+        newActiveTab = newActiveTabObj;
+      } else if (state.activeTabId === tabId) {
+        newActiveTabId = null;
+        newActiveTab = null;
       }
       
       return {
         tabs: newTabs,
-        activeTabId: newActiveTabId
+        activeTabId: newActiveTabId,
+        activeTab: newActiveTab
       };
     });
   },
@@ -135,7 +150,8 @@ export const useBrowserStore = create<BrowserState>((set, get) => ({
       
       return {
         tabs: newTabs,
-        activeTabId: tabId
+        activeTabId: tabId,
+        activeTab: newTabs.find(tab => tab.id === tabId) || null
       };
     });
   },
@@ -149,7 +165,10 @@ export const useBrowserStore = create<BrowserState>((set, get) => ({
   },
 
   setActiveTabId: (tabId) => {
-    set({ activeTabId: tabId });
+    set((state) => ({
+      activeTabId: tabId,
+      activeTab: state.tabs.find(tab => tab.id === tabId) || null
+    }));
   },
 
   // Tab Group Actions
@@ -328,7 +347,12 @@ export const useBrowserStore = create<BrowserState>((set, get) => ({
   },
 
   setSplitViewTabs: (leftTabId, rightTabId) => {
-    set({ leftTabId, rightTabId });
+    set((state) => ({
+      leftTabId,
+      rightTabId,
+      getLeftTab: state.tabs.find(tab => tab.id === leftTabId) || null,
+      getRightTab: state.tabs.find(tab => tab.id === rightTabId) || null
+    }));
   },
 
   // Selectors

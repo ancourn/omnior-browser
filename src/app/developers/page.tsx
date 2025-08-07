@@ -50,10 +50,7 @@ import {
   Puzzle,
   Store,
   GithubIcon,
-  Chrome,
-  Safari,
-  Firefox,
-  Edge
+  Chrome
 } from "lucide-react"
 
 export default function DevelopersPage() {

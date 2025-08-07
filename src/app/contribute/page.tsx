@@ -17,14 +17,13 @@ import {
   Star,
   Award,
   GitBranch,
-  PullRequest,
-  Issue,
+  GitPullRequest,
   Calendar,
   MapPin,
   Mail,
   Twitter,
-  Discord,
-  Linkedin
+  Linkedin,
+  MessageSquare
 } from "lucide-react"
 
 export default function ContributePage() {
@@ -342,7 +341,7 @@ export default function ContributePage() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Discord className="h-4 w-4" />
+                        <MessageCircle className="h-4 w-4" />
                         <span className="font-medium">Discord</span>
                       </div>
                       <Button variant="outline" size="sm">Join</Button>
@@ -527,7 +526,7 @@ export default function ContributePage() {
                 Start Contributing
               </Button>
               <Button variant="outline" size="lg">
-                <Discord className="mr-2 h-5 w-5" />
+                <MessageSquare className="mr-2 h-5 w-5" />
                 Join Discord
               </Button>
             </div>

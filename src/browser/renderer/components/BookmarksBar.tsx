@@ -62,17 +62,19 @@ export const BookmarksBar: React.FC<BookmarksBarProps> = ({ onBookmarkClick }) =
       <div
         key={bookmark.id}
         className="bookmark-item"
-        onClick={() => handleBookmarkClick(bookmark.url)}
+        onClick={() => bookmark.url && handleBookmarkClick(bookmark.url)}
         title={bookmark.title}
       >
-        <img
-          src={getFaviconUrl(bookmark.url)}
-          alt=""
-          className="w-3 h-3"
-          onError={(e) => {
-            e.currentTarget.style.display = 'none';
-          }}
-        />
+        {bookmark.url && (
+          <img
+            src={getFaviconUrl(bookmark.url)}
+            alt=""
+            className="w-3 h-3"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        )}
         <span>{bookmark.title}</span>
       </div>
     );

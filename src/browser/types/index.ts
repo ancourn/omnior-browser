@@ -29,7 +29,7 @@ export interface Tab {
 
 export interface Bookmark {
   id: string;
-  url: string;
+  url?: string;
   title: string;
   favicon?: string;
   parentId?: string;

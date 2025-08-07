@@ -167,6 +167,7 @@ export class StorageManager {
     return [
       {
         id: 'toolbar',
+        url: '',
         title: 'Bookmarks Toolbar',
         folder: true,
         children: [

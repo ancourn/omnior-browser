@@ -23,15 +23,15 @@ export class MenuManager {
       ...(isMac ? [{
         label: app.getName(),
         submenu: [
-          { role: 'about', label: 'About Omnior' },
-          { type: 'separator' },
-          { role: 'services', label: 'Services' },
-          { type: 'separator' },
-          { role: 'hide', label: 'Hide Omnior' },
-          { role: 'hideOthers', label: 'Hide Others' },
-          { role: 'unhide', label: 'Show All' },
-          { type: 'separator' },
-          { role: 'quit', label: 'Quit Omnior' }
+          { role: 'about' as const, label: 'About Omnior' },
+          { type: 'separator' as const },
+          { role: 'services' as const, label: 'Services' },
+          { type: 'separator' as const },
+          { role: 'hide' as const, label: 'Hide Omnior' },
+          { role: 'hideOthers' as const, label: 'Hide Others' },
+          { role: 'unhide' as const, label: 'Show All' },
+          { type: 'separator' as const },
+          { role: 'quit' as const, label: 'Quit Omnior' }
         ]
       }] : []),
 
@@ -80,7 +80,7 @@ export class MenuManager {
               }).loadFile(path.join(__dirname, '../../renderer/index.html'));
             }
           },
-          { type: 'separator' },
+          { type: 'separator' as const },
           {
             label: 'Open File...',
             accelerator: 'CmdOrCtrl+O',
@@ -101,11 +101,11 @@ export class MenuManager {
               }
             }
           },
-          { type: 'separator' },
+          { type: 'separator' as const },
           {
             label: 'Close Window',
             accelerator: 'CmdOrCtrl+Shift+W',
-            role: 'close'
+            role: 'close' as const
           },
           {
             label: 'Close Tab',
@@ -117,7 +117,7 @@ export class MenuManager {
               }
             }
           },
-          { type: 'separator' },
+          { type: 'separator' as const },
           {
             label: 'Save Page As...',
             accelerator: 'CmdOrCtrl+S',
@@ -128,9 +128,9 @@ export class MenuManager {
               }
             }
           },
-          { type: 'separator' },
+          { type: 'separator' as const },
           ...(isMac ? [
-            { role: 'quit', label: 'Quit Omnior' }
+            { role: 'quit' as const, label: 'Quit Omnior' }
           ] : [
             {
               label: 'Exit',
@@ -147,16 +147,16 @@ export class MenuManager {
       {
         label: 'Edit',
         submenu: [
-          { role: 'undo', label: 'Undo' },
-          { role: 'redo', label: 'Redo' },
-          { type: 'separator' },
-          { role: 'cut', label: 'Cut' },
-          { role: 'copy', label: 'Copy' },
-          { role: 'paste', label: 'Paste' },
-          { role: 'pasteAndMatchStyle', label: 'Paste and Match Style' },
-          { role: 'delete', label: 'Delete' },
-          { role: 'selectAll', label: 'Select All' },
-          { type: 'separator' },
+          { role: 'undo' as const, label: 'Undo' },
+          { role: 'redo' as const, label: 'Redo' },
+          { type: 'separator' as const },
+          { role: 'cut' as const, label: 'Cut' },
+          { role: 'copy' as const, label: 'Copy' },
+          { role: 'paste' as const, label: 'Paste' },
+          { role: 'pasteAndMatchStyle' as const, label: 'Paste and Match Style' },
+          { role: 'delete' as const, label: 'Delete' },
+          { role: 'selectAll' as const, label: 'Select All' },
+          { type: 'separator' as const },
           {
             label: 'Find',
             accelerator: 'CmdOrCtrl+F',
@@ -187,7 +187,7 @@ export class MenuManager {
               }
             }
           },
-          { type: 'separator' },
+          { type: 'separator' as const },
           {
             label: 'Preferences...',
             accelerator: 'CmdOrCtrl+,',
@@ -225,13 +225,13 @@ export class MenuManager {
               }
             }
           },
-          { type: 'separator' },
-          { role: 'resetZoom', label: 'Actual Size' },
-          { role: 'zoomIn', label: 'Zoom In' },
-          { role: 'zoomOut', label: 'Zoom Out' },
-          { type: 'separator' },
-          { role: 'togglefullscreen', label: 'Full Screen' },
-          { type: 'separator' },
+          { type: 'separator' as const },
+          { role: 'resetZoom' as const, label: 'Actual Size' },
+          { role: 'zoomIn' as const, label: 'Zoom In' },
+          { role: 'zoomOut' as const, label: 'Zoom Out' },
+          { type: 'separator' as const },
+          { role: 'togglefullscreen' as const, label: 'Full Screen' },
+          { type: 'separator' as const },
           {
             label: 'Developer',
             submenu: [
@@ -294,7 +294,7 @@ export class MenuManager {
               }
             }
           },
-          { type: 'separator' },
+          { type: 'separator' as const },
           {
             label: 'Show Full History',
             accelerator: 'CmdOrCtrl+Y',
@@ -340,7 +340,7 @@ export class MenuManager {
               }
             }
           },
-          { type: 'separator' },
+          { type: 'separator' as const },
           {
             label: 'Show Bookmarks Bar',
             type: 'checkbox',
@@ -362,7 +362,7 @@ export class MenuManager {
               }
             }
           },
-          { type: 'separator' },
+          { type: 'separator' as const },
           {
             label: 'Import Bookmarks and Settings...',
             click: () => {
@@ -388,11 +388,11 @@ export class MenuManager {
       {
         label: 'Window',
         submenu: [
-          { role: 'minimize', label: 'Minimize' },
-          { role: 'zoom', label: 'Zoom' },
-          { type: 'separator' },
-          { role: 'front', label: 'Bring All to Front' },
-          { type: 'separator' },
+          { role: 'minimize' as const, label: 'Minimize' },
+          { role: 'zoom' as const, label: 'Zoom' },
+          { type: 'separator' as const },
+          { role: 'front' as const, label: 'Bring All to Front' },
+          { type: 'separator' as const },
           {
             label: 'Select Next Tab',
             accelerator: 'Ctrl+Tab',
@@ -438,7 +438,7 @@ export class MenuManager {
               shell.openExternal('https://github.com/ancourn/omnior-browser/issues');
             }
           },
-          { type: 'separator' },
+          { type: 'separator' as const },
           {
             label: 'Check for Updates...',
             click: () => {
@@ -448,8 +448,8 @@ export class MenuManager {
               }
             }
           },
-          { type: 'separator' },
-          { role: 'about', label: 'About Omnior' }
+          { type: 'separator' as const },
+          { role: 'about' as const, label: 'About Omnior' }
         ]
       }
     ];

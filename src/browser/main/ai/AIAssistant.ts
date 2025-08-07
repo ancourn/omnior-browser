@@ -247,7 +247,6 @@ export class AIAssistant {
         webPreferences: {
           nodeIntegration: false,
           contextIsolation: true,
-          enableRemoteModule: false,
           webSecurity: true,
           preload: path.join(__dirname, '../../renderer/preload.js')
         },
@@ -654,7 +653,8 @@ export class AIAssistant {
     await this.saveShortcuts();
 
     // Execute the shortcut action
-    return await this.processCustomPrompt(shortcut.action);
+    const response = await this.processCustomPrompt(shortcut.action);
+    return response ? response.content : null;
   }
 
   private async getHistory(limit: number = 50): Promise<AIResponse[]> {

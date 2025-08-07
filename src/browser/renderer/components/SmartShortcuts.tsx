@@ -17,6 +17,7 @@ interface SmartShortcut {
   usageCount: number;
   lastUsed: number | null;
   category: 'productivity' | 'privacy' | 'navigation' | 'content' | 'custom';
+  score?: number; // Match score for filtering
 }
 
 interface ShortcutAction {

@@ -121,7 +121,7 @@ class OmniorBrowser {
     const window = await this.windowManager.createWindow();
     
     // Create new tab with default page
-    await this.windowManager.createNewTab(window.id);
+    await this.windowManager.createNewTab(window.id.toString());
   }
 
   private setupGlobalShortcuts() {
@@ -129,7 +129,7 @@ class OmniorBrowser {
     globalShortcut.register('CommandOrControl+T', () => {
       const window = this.windowManager.getFocusedWindow();
       if (window) {
-        this.windowManager.createNewTab(window.id);
+        this.windowManager.createNewTab(window.id.toString());
       }
     });
 
@@ -142,7 +142,7 @@ class OmniorBrowser {
     globalShortcut.register('CommandOrControl+W', () => {
       const window = this.windowManager.getFocusedWindow();
       if (window) {
-        this.windowManager.closeActiveTab(window.id);
+        this.windowManager.closeActiveTab(window.id.toString());
       }
     });
 

@@ -1,4 +1,4 @@
-import { app, dialog, ipcMain } from 'electron';
+import { app, dialog, ipcMain, BrowserWindow } from 'electron';
 import { join } from 'path';
 import { promises as fs } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
@@ -230,7 +230,6 @@ export class ExtensionStore {
         webPreferences: {
           nodeIntegration: false,
           contextIsolation: true,
-          enableRemoteModule: false,
           webSecurity: true,
           preload: (await import('path')).join(__dirname, '../../renderer/preload.js')
         },
@@ -416,9 +415,9 @@ export class ExtensionStore {
         await this.registerContentScripts(extension, instance);
       }
 
-      console.log(`Extension ${extension.name} initialized successfully`);
+      console.log(`Extension ${extension.omnifest.name} initialized successfully`);
     } catch (error) {
-      console.error(`Failed to initialize extension ${extension.name}:`, error);
+      console.error(`Failed to initialize extension ${extension.omnifest.name}:`, error);
     }
   }
 
@@ -522,12 +521,12 @@ export class ExtensionStore {
 
   private async loadBackgroundScripts(extension: Extension, instance: ExtensionInstance): Promise<void> {
     // In a real implementation, you'd load and execute background scripts
-    console.log(`Loading background scripts for ${extension.name}`);
+    console.log(`Loading background scripts for ${extension.omnifest.name}`);
   }
 
   private async registerContentScripts(extension: Extension, instance: ExtensionInstance): Promise<void> {
     // In a real implementation, you'd register content scripts with the webContents
-    console.log(`Registering content scripts for ${extension.name}`);
+    console.log(`Registering content scripts for ${extension.omnifest.name}`);
   }
 
   public async enableExtension(extensionId: string): Promise<boolean> {
@@ -583,7 +582,7 @@ export class ExtensionStore {
     if (!extension) return false;
 
     // In a real implementation, you'd check for updates and install them
-    console.log(`Updating extension ${extension.name}`);
+    console.log(`Updating extension ${extension.omnifest.name}`);
     return false;
   }
 

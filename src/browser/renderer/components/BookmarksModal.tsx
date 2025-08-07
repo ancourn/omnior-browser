@@ -93,20 +93,24 @@ export const BookmarksModal: React.FC<BookmarksModalProps> = ({
       <div
         key={bookmark.id}
         className="p-3 rounded-lg border border-border hover:bg-muted cursor-pointer transition-colors"
-        onClick={() => handleBookmarkClick(bookmark.url)}
+        onClick={() => bookmark.url && handleBookmarkClick(bookmark.url)}
       >
         <div className="flex items-center gap-3">
-          <img
-            src={getFaviconUrl(bookmark.url)}
-            alt=""
-            className="w-4 h-4"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
+          {bookmark.url && (
+            <img
+              src={getFaviconUrl(bookmark.url)}
+              alt=""
+              className="w-4 h-4"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          )}
           <div className="flex-1 min-w-0">
             <h3 className="font-medium truncate">{bookmark.title}</h3>
-            <p className="text-sm text-muted-foreground truncate">{bookmark.url}</p>
+            {bookmark.url && (
+              <p className="text-sm text-muted-foreground truncate">{bookmark.url}</p>
+            )}
           </div>
         </div>
       </div>

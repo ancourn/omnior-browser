@@ -1,4 +1,4 @@
-import { session, BrowserWindow, Partition } from 'electron';
+import { session, BrowserWindow } from 'electron';
 import { v4 as uuidv4 } from 'uuid';
 
 export class PrivateModeManager {
@@ -28,7 +28,6 @@ export class PrivateModeManager {
         session: privateSession,
         nodeIntegration: false,
         contextIsolation: true,
-        enableRemoteModule: false,
         webSecurity: true,
         allowRunningInsecureContent: false,
         experimentalFeatures: false
@@ -58,7 +57,6 @@ export class PrivateModeManager {
     // Disable persistent storage
     await privateSession.clearStorageData({
       storages: [
-        'appcache',
         'cookies',
         'filesystem',
         'indexdb',
@@ -81,9 +79,9 @@ export class PrivateModeManager {
         }
 
         // Block localStorage and sessionStorage
-        responseHeaders['cache-control'] = ['no-store, no-cache, must-revalidate'];
-        responseHeaders['pragma'] = ['no-cache'];
-        responseHeaders['expires'] = ['0'];
+        (responseHeaders as any)['cache-control'] = 'no-store, no-cache, must-revalidate';
+        (responseHeaders as any)['pragma'] = 'no-cache';
+        (responseHeaders as any)['expires'] = '0';
 
         callback({ responseHeaders });
       }
@@ -102,7 +100,7 @@ export class PrivateModeManager {
     // Block service workers
     privateSession.setPermissionRequestHandler(
       (webContents, permission, callback) => {
-        if (permission === 'service-worker') {
+        if (permission === 'media') {
           callback(false);
         } else {
           callback(true);
@@ -168,7 +166,6 @@ export class PrivateModeManager {
       promises.push(
         privateSession.clearStorageData({
           storages: [
-            'appcache',
             'cookies',
             'filesystem',
             'indexdb',
@@ -218,7 +215,6 @@ export class PrivateModeManager {
       // Clear all data for this session
       privateSession.clearStorageData({
         storages: [
-          'appcache',
           'cookies',
           'filesystem',
           'indexdb',
@@ -243,7 +239,7 @@ export class PrivateModeManager {
     if (!webContents) return '';
     
     const session = webContents.session;
-    return session.partition || '';
+    return (session as any).partition || '';
   }
 
   /**
@@ -274,7 +270,6 @@ export class PrivateModeManager {
     if (privateSession) {
       await privateSession.clearStorageData({
         storages: [
-          'appcache',
           'cookies',
           'filesystem',
           'indexdb',

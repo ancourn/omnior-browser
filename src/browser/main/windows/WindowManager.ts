@@ -27,7 +27,6 @@ export class WindowManager {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        enableRemoteModule: false,
         preload: path.join(__dirname, '../../renderer/preload.js'),
         webSecurity: true,
         allowRunningInsecureContent: false,

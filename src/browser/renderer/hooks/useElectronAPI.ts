@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { BrowserSettings } from '../types';
 
 export const useElectronAPI = () => {
   if (typeof window === 'undefined' || !window.electronAPI) {
@@ -25,10 +26,12 @@ export const useElectronAPI = () => {
       clearHistory: async () => {},
 
       // Settings Management
-      getSettings: async () => ({
+      getSettings: async (): Promise<BrowserSettings> => ({
         theme: 'system',
         startupBehavior: 'newTab',
+        startupUrls: [] as string[],
         searchEngine: 'google',
+        customSearchUrl: '',
         downloadPath: '/Downloads',
         alwaysShowBookmarksBar: false,
         blockAds: true,
@@ -41,10 +44,66 @@ export const useElectronAPI = () => {
           history: false,
           passwords: false,
           formData: true
-        }
+        },
+        // Enhanced layout settings
+        tabLayout: 'horizontal',
+        enableSplitView: false,
+        splitViewOrientation: 'horizontal',
+        showTabSearch: true,
+        enableTabGroups: true
       }),
-      updateSettings: async () => ({}),
-      resetSettings: async () => ({}),
+      updateSettings: async (): Promise<BrowserSettings> => ({
+        theme: 'system',
+        startupBehavior: 'newTab',
+        startupUrls: [] as string[],
+        searchEngine: 'google',
+        customSearchUrl: '',
+        downloadPath: '/Downloads',
+        alwaysShowBookmarksBar: false,
+        blockAds: true,
+        blockTrackers: true,
+        enableJavaScript: true,
+        enableCookies: true,
+        clearBrowsingData: {
+          cookies: true,
+          cache: true,
+          history: false,
+          passwords: false,
+          formData: true
+        },
+        // Enhanced layout settings
+        tabLayout: 'horizontal',
+        enableSplitView: false,
+        splitViewOrientation: 'horizontal',
+        showTabSearch: true,
+        enableTabGroups: true
+      }),
+      resetSettings: async (): Promise<BrowserSettings> => ({
+        theme: 'system',
+        startupBehavior: 'newTab',
+        startupUrls: [] as string[],
+        searchEngine: 'google',
+        customSearchUrl: '',
+        downloadPath: '/Downloads',
+        alwaysShowBookmarksBar: false,
+        blockAds: true,
+        blockTrackers: true,
+        enableJavaScript: true,
+        enableCookies: true,
+        clearBrowsingData: {
+          cookies: true,
+          cache: true,
+          history: false,
+          passwords: false,
+          formData: true
+        },
+        // Enhanced layout settings
+        tabLayout: 'horizontal',
+        enableSplitView: false,
+        splitViewOrientation: 'horizontal',
+        showTabSearch: true,
+        enableTabGroups: true
+      }),
 
       // Window Management
       createWindow: async () => 'mock-window',

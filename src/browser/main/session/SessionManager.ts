@@ -213,10 +213,7 @@ export class SessionManager {
       const { WindowManager } = await import('../windows/WindowManager');
       const windowManager = new WindowManager();
       
-      const window = await windowManager.createWindow({
-        isPrivate,
-        bounds: windowData.bounds
-      });
+      const window = await windowManager.createWindow();
 
       // Restore tabs after window is ready
       if (window && windowData.tabs && windowData.tabs.length > 0) {

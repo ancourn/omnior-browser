@@ -1,6 +1,7 @@
 import { app, session, ipcMain } from 'electron';
 import { join } from 'path';
 import { promises as fs } from 'fs';
+import { existsSync } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface PrivacyConfig {
@@ -105,7 +106,7 @@ export class PrivacyManager {
   private async loadConfig() {
     try {
       const configPath = join(this.userDataPath, 'privacy-config.json');
-      if (fs.existsSync(configPath)) {
+      if (existsSync(configPath)) {
         const data = await fs.readFile(configPath, 'utf-8');
         const saved = JSON.parse(data);
         this.config = { ...this.config, ...saved };
@@ -243,7 +244,7 @@ export class PrivacyManager {
 
       // Load custom rules if they exist
       const customRulesPath = join(this.userDataPath, 'custom-tracking-rules.json');
-      if (fs.existsSync(customRulesPath)) {
+      if (existsSync(customRulesPath)) {
         const data = await fs.readFile(customRulesPath, 'utf-8');
         const customRules = JSON.parse(data);
         
@@ -281,7 +282,7 @@ export class PrivacyManager {
   private async loadStats() {
     try {
       const statsPath = join(this.userDataPath, 'privacy-stats.json');
-      if (fs.existsSync(statsPath)) {
+      if (existsSync(statsPath)) {
         const data = await fs.readFile(statsPath, 'utf-8');
         this.stats = JSON.parse(data);
       }
@@ -483,8 +484,8 @@ export class PrivacyManager {
       
       const logFile = join(this.privacyLogPath, `${new Date().toDateString().replace(/\s/g, '-')}.json`);
       
-      let logs = [];
-      if (fs.existsSync(logFile)) {
+      let logs: any[] = [];
+      if (existsSync(logFile)) {
         const existingData = await fs.readFile(logFile, 'utf-8');
         logs = JSON.parse(existingData);
       }
@@ -579,7 +580,7 @@ export class PrivacyManager {
       try {
         const logFile = join(this.privacyLogPath, `${date || new Date().toDateString().replace(/\s/g, '-')}.json`);
         
-        if (fs.existsSync(logFile)) {
+        if (existsSync(logFile)) {
           const data = await fs.readFile(logFile, 'utf-8');
           let logs = JSON.parse(data);
           
@@ -634,7 +635,7 @@ export class PrivacyManager {
         
         if (options.localStorage || options.sessionStorage || options.indexedDB || options.webSQL) {
           await defaultSession.clearStorageData({
-            storages: ['localstorage', 'sessionstorage', 'indexeddb', 'websql']
+            storages: ['localstorage', 'indexdb', 'websql', 'serviceworkers']
           });
         }
         
@@ -655,7 +656,7 @@ export class PrivacyManager {
     });
   }
 
-  private async scanPageForPrivacyIssues(url: string): Promise<{
+  public async scanPageForPrivacyIssues(url: string): Promise<{
     issues: Array<{
       type: 'tracker' | 'cookie' | 'fingerprint' | 'permission' | 'https';
       severity: 'low' | 'medium' | 'high';
@@ -665,7 +666,12 @@ export class PrivacyManager {
     scanTime: number;
   }> {
     const startTime = Date.now();
-    const issues = [];
+    const issues: Array<{
+      type: 'tracker' | 'cookie' | 'fingerprint' | 'permission' | 'https';
+      severity: 'low' | 'medium' | 'high';
+      description: string;
+      recommendation: string;
+    }> = [];
 
     try {
       // Check for known tracking domains
@@ -806,6 +812,17 @@ export class PrivacyManager {
     return deleted;
   }
 
+  public async toggleTrackingRule(ruleId: string): Promise<boolean> {
+    const rule = this.trackingRules.get(ruleId);
+    if (rule) {
+      rule.enabled = !rule.enabled;
+      await this.saveTrackingRules();
+      this.setupPrivacyProtection();
+      return true;
+    }
+    return false;
+  }
+
   public async clearBrowsingData(options: {
     cookies?: boolean;
     cache?: boolean;
@@ -827,7 +844,7 @@ export class PrivacyManager {
       
       if (options.localStorage || options.sessionStorage || options.indexedDB) {
         await defaultSession.clearStorageData({
-          storages: ['localstorage', 'sessionstorage', 'indexeddb']
+          storages: ['localstorage', 'indexdb']
         });
       }
       

@@ -1,37 +1,31 @@
-import { Settings, SearchEngine } from '../types'
+import { BrowserSettings, SEARCH_ENGINES } from '../types'
 
-export const DEFAULT_SETTINGS: Settings = {
-  general: {
-    homepage: 'https://omnior.browser',
-    startupBehavior: 'homepage',
-    defaultSearchEngine: 'google',
-    theme: 'system',
-    language: 'en-US'
+export const DEFAULT_SETTINGS: BrowserSettings = {
+  theme: 'system',
+  startupBehavior: 'newTab',
+  searchEngine: 'google',
+  downloadPath: '',
+  alwaysShowBookmarksBar: false,
+  blockAds: true,
+  blockTrackers: true,
+  enableJavaScript: true,
+  enableCookies: true,
+  clearBrowsingData: {
+    cookies: true,
+    cache: true,
+    history: false,
+    passwords: false,
+    formData: true
   },
-  privacy: {
-    blockTrackers: true,
-    blockAds: true,
-    sendDoNotTrack: true,
-    clearBrowsingData: {
-      cookies: false,
-      cache: false,
-      history: false,
-      passwords: false
-    }
-  },
-  security: {
-    safeBrowsing: true,
-    siteSettings: {}
-  },
-  advanced: {
-    enableHardwareAcceleration: true,
-    proxySettings: {
-      mode: 'none'
-    }
-  }
+  // Enhanced layout defaults
+  tabLayout: 'horizontal',
+  enableSplitView: false,
+  splitViewOrientation: 'horizontal',
+  showTabSearch: true,
+  enableTabGroups: true
 }
 
-export const SEARCH_ENGINES: SearchEngine[] = [
+export const AVAILABLE_SEARCH_ENGINES = [
   {
     name: 'Google',
     url: 'https://www.google.com/search?q={query}',
@@ -122,8 +116,8 @@ export function isValidUrl(url: string): boolean {
 }
 
 export function getSearchUrl(query: string, searchEngine: string = 'google'): string {
-  const engine = SEARCH_ENGINES.find(e => e.name.toLowerCase() === searchEngine.toLowerCase())
-  if (!engine) return SEARCH_ENGINES[0].url.replace('{query}', encodeURIComponent(query))
+  const engine = Object.values(SEARCH_ENGINES).find(e => e.name.toLowerCase() === searchEngine.toLowerCase())
+  if (!engine) return Object.values(SEARCH_ENGINES)[0].url.replace('{query}', encodeURIComponent(query))
   
   return engine.url.replace('{query}', encodeURIComponent(query))
 }
