@@ -1,0 +1,221 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Tab bar styling */
+.tab-bar {
+  @apply flex items-center bg-muted border-b border-border;
+}
+
+.tab {
+  @apply flex items-center px-3 py-2 border-r border-border cursor-pointer hover:bg-muted/80 transition-colors;
+  min-width: 120px;
+  max-width: 240px;
+}
+
+.tab.active {
+  @apply bg-background border-b-2 border-b-primary;
+}
+
+.tab-content {
+  @apply flex items-center gap-2 flex-1 min-w-0;
+}
+
+.tab-title {
+  @apply text-sm font-medium truncate;
+}
+
+.tab-favicon {
+  @apply w-4 h-4 flex-shrink-0;
+}
+
+.tab-close {
+  @apply opacity-0 hover:opacity-100 transition-opacity p-1 rounded hover:bg-destructive/20;
+}
+
+.tab:hover .tab-close {
+  @apply opacity-70;
+}
+
+/* Toolbar styling */
+.toolbar {
+  @apply flex items-center gap-2 px-4 py-2 bg-background border-b border-border;
+}
+
+.address-bar {
+  @apply flex-1 flex items-center bg-muted rounded-lg px-3 py-2 text-sm;
+}
+
+.address-bar input {
+  @apply flex-1 bg-transparent outline-none;
+}
+
+/* Bookmarks bar styling */
+.bookmarks-bar {
+  @apply flex items-center gap-1 px-2 py-1 bg-muted/50 border-b border-border;
+}
+
+.bookmark-item {
+  @apply px-2 py-1 text-sm hover:bg-muted rounded cursor-pointer transition-colors;
+}
+
+/* Content area styling */
+.content-area {
+  @apply w-full h-full bg-background;
+}
+
+.webview-container {
+  @apply w-full h-full;
+}
+
+.webview {
+  @apply w-full h-full bg-white;
+}
+
+/* Modal styling */
+.modal-overlay {
+  @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50;
+}
+
+.modal-content {
+  @apply bg-background border border-border rounded-lg shadow-lg max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col;
+}
+
+.modal-header {
+  @apply flex items-center justify-between p-4 border-b border-border;
+}
+
+.modal-body {
+  @apply flex-1 overflow-y-auto p-4;
+}
+
+.modal-footer {
+  @apply flex items-center justify-end gap-2 p-4 border-t border-border;
+}
+
+/* Find bar styling */
+.find-bar {
+  @apply absolute top-2 right-2 bg-background border border-border rounded-lg shadow-lg p-2 flex items-center gap-2 z-10;
+}
+
+.find-input {
+  @apply px-3 py-1 bg-muted rounded text-sm outline-none;
+}
+
+/* Button styling */
+.btn {
+  @apply px-3 py-1.5 text-sm font-medium rounded-md transition-colors;
+}
+
+.btn-primary {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+}
+
+.btn-ghost {
+  @apply hover:bg-muted;
+}
+
+.btn-destructive {
+  @apply bg-destructive text-destructive-foreground hover:bg-destructive/90;
+}
+
+/* Input styling */
+.input {
+  @apply px-3 py-2 bg-muted border border-border rounded-md text-sm outline-none focus:ring-2 focus:ring-primary/50;
+}
+
+/* Settings form styling */
+.settings-section {
+  @apply space-y-4;
+}
+
+.settings-group {
+  @apply space-y-2;
+}
+
+.settings-label {
+  @apply text-sm font-medium;
+}
+
+.settings-description {
+  @apply text-xs text-muted-foreground;
+}
+
+/* Loading spinner */
+.spinner {
+  @apply w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin;
+}
+
+/* Context menu styling */
+.context-menu {
+  @apply absolute bg-background border border-border rounded-lg shadow-lg py-1 z-50;
+}
+
+.context-menu-item {
+  @apply px-3 py-2 text-sm hover:bg-muted cursor-pointer flex items-center gap-2;
+}
+
+.context-menu-separator {
+  @apply border-t border-border my-1;
+}
+
+/* Theme variables */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 98%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 98%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 222.2 84% 4.9%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 224.3 76.3% 94.1%;
+}

@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Screenshot Tool - Omnior</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background: #2d2d2d;
+            padding: 1rem;
+            border-bottom: 1px solid #404040;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #005a9e;
+        }
+
+        .btn.secondary {
+            background: #555;
+        }
+
+        .btn.secondary:hover {
+            background: #666;
+        }
+
+        .btn.danger {
+            background: #dc3545;
+        }
+
+        .btn.danger:hover {
+            background: #c82333;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #252525;
+            border-right: 1px solid #404040;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .option-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .option-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .option-group select,
+        .option-group input {
+            width: 100%;
+            padding: 0.5rem;
+            background: #333;
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0a0a0a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #screenshotCanvas {
+            max-width: 100%;
+            max-height: 100%;
+            border: 2px solid #333;
+            cursor: crosshair;
+        }
+
+        .annotation-tools {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(45, 45, 45, 0.95);
+            border-radius: 8px;
+            padding: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .tool-btn {
+            width: 40px;
+            height: 40px;
+            background: #333;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover {
+            background: #444;
+        }
+
+        .tool-btn.active {
+            border-color: #007acc;
+            background: #007acc;
+        }
+
+        .selection-overlay {
+            position: absolute;
+            border: 2px dashed #007acc;
+            background: rgba(0, 122, 204, 0.1);
+            pointer-events: none;
+            display: none;
+        }
+
+        .status-bar {
+            background: #2d2d2d;
+            padding: 0.5rem 1rem;
+            border-top: 1px solid #404040;
+            font-size: 0.9rem;
+            color: #aaa;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .color-input {
+            width: 40px;
+            height: 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .size-slider {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .preview-mode {
+            background: #000;
+        }
+
+        .preview-mode .sidebar,
+        .preview-mode .header,
+        .preview-mode .status-bar {
+            display: none;
+        }
+
+        .preview-mode .canvas-container {
+            background: #000;
+        }
+
+        .preview-mode #screenshotCanvas {
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📸 Smart Screenshot Tool</h1>
+            <div class="controls">
+                <button class="btn" id="captureBtn">📷 Capture Screen</button>
+                <button class="btn secondary" id="loadBtn">📁 Load Image</button>
+                <button class="btn secondary" id="previewBtn">👁 Preview</button>
+                <button class="btn" id="saveBtn">💾 Save</button>
+                <button class="btn secondary" id="copyBtn">📋 Copy</button>
+                <button class="btn danger" id="clearBtn">🗑 Clear</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="option-group">
+                    <h3>Capture Options</h3>
+                    <label for="captureType">Capture Type:</label>
+                    <select id="captureType">
+                        <option value="full">Full Screen</option>
+                        <option value="window">Active Window</option>
+                        <option value="selection">Selection</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <h3>Export Settings</h3>
+                    <label for="format">Format:</label>
+                    <select id="format">
+                        <option value="png">PNG</option>
+                        <option value="jpeg">JPEG</option>
+                        <option value="webp">WebP</option>
+                    </select>
+                    
+                    <label for="quality">Quality:</label>
+                    <input type="range" id="quality" min="1" max="100" value="90" class="size-slider">
+                    <span id="qualityValue">90%</span>
+                </div>
+
+                <div class="option-group">
+                    <h3>Annotation Tools</h3>
+                    <label for="tool">Active Tool:</label>
+                    <select id="tool">
+                        <option value="select">Select</option>
+                        <option value="rectangle">Rectangle</option>
+                        <option value="circle">Circle</option>
+                        <option value="arrow">Arrow</option>
+                        <option value="line">Line</option>
+                        <option value="text">Text</option>
+                        <option value="blur">Blur</option>
+                    </select>
+
+                    <label for="strokeColor">Stroke Color:</label>
+                    <div class="color-picker">
+                        <input type="color" id="strokeColor" value="#ff0000" class="color-input">
+                        <span id="strokeColorValue">#ff0000</span>
+                    </div>
+
+                    <label for="fillColor">Fill Color:</label>
+                    <div class="color-picker">
+                        <input type="color" id="fillColor" value="#ffff00" class="color-input">
+                        <span id="fillColorValue">#ffff00</span>
+                    </div>
+
+                    <label for="strokeWidth">Line Width:</label>
+                    <input type="range" id="strokeWidth" min="1" max="20" value="3" class="size-slider">
+                    <span id="strokeWidthValue">3px</span>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="screenshotCanvas"></canvas>
+                <div class="selection-overlay" id="selectionOverlay"></div>
+                <div class="annotation-tools" id="annotationTools">
+                    <button class="tool-btn" data-tool="select" title="Select">↖</button>
+                    <button class="tool-btn" data-tool="rectangle" title="Rectangle">▢</button>
+                    <button class="tool-btn" data-tool="circle" title="Circle">○</button>
+                    <button class="tool-btn" data-tool="arrow" title="Arrow">→</button>
+                    <button class="tool-btn" data-tool="line" title="Line">╱</button>
+                    <button class="tool-btn" data-tool="text" title="Text">T</button>
+                    <button class="tool-btn" data-tool="blur" title="Blur">💨</button>
+                </div>
+                <div class="instructions" id="instructions">
+                    Click "Capture Screen" to take a screenshot or "Load Image" to open an existing image
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span id="statusText">Ready</span>
+            <span id="coordinates">X: 0, Y: 0</span>
+        </div>
+    </div>
+
+    <script>
+        class ScreenshotTool {
+            constructor() {
+                this.canvas = document.getElementById('screenshotCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.originalImageData = null;
+                this.currentTool = 'select';
+                this.isDrawing = false;
+                this.startX = 0;
+                this.startY = 0;
+                this.annotations = [];
+                this.currentAnnotation = null;
+                
+                this.initializeEventListeners();
+                this.updateUI();
+            }
+
+            initializeEventListeners() {
+                // Tool buttons
+                document.getElementById('captureBtn').addEventListener('click', () => this.captureScreen());
+                document.getElementById('loadBtn').addEventListener('click', () => this.loadImage());
+                document.getElementById('previewBtn').addEventListener('click', () => this.togglePreview());
+                document.getElementById('saveBtn').addEventListener('click', () => this.saveImage());
+                document.getElementById('copyBtn').addEventListener('click', () => this.copyToClipboard());
+                document.getElementById('clearBtn').addEventListener('click', () => this.clearCanvas());
+
+                // Annotation tools
+                document.querySelectorAll('.tool-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.setTool(e.target.dataset.tool);
+                    });
+                });
+
+                // Settings
+                document.getElementById('tool').addEventListener('change', (e) => {
+                    this.setTool(e.target.value);
+                });
+
+                document.getElementById('quality').addEventListener('input', (e) => {
+                    document.getElementById('qualityValue').textContent = e.target.value + '%';
+                });
+
+                document.getElementById('strokeColor').addEventListener('input', (e) => {
+                    document.getElementById('strokeColorValue').textContent = e.target.value;
+                });
+
+                document.getElementById('fillColor').addEventListener('input', (e) => {
+                    document.getElementById('fillColorValue').textContent = e.target.value;
+                });
+
+                document.getElementById('strokeWidth').addEventListener('input', (e) => {
+                    document.getElementById('strokeWidthValue').textContent = e.target.value + 'px';
+                });
+
+                // Canvas events
+                this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
+                this.canvas.addEventListener('mousemove', (e) => this.draw(e));
+                this.canvas.addEventListener('mouseup', () => this.stopDrawing());
+                this.canvas.addEventListener('mouseleave', () => this.stopDrawing());
+
+                // Update coordinates
+                this.canvas.addEventListener('mousemove', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = Math.round(e.clientX - rect.left);
+                    const y = Math.round(e.clientY - rect.top);
+                    document.getElementById('coordinates').textContent = `X: ${x}, Y: ${y}`;
+                });
+            }
+
+            setTool(tool) {
+                this.currentTool = tool;
+                document.querySelectorAll('.tool-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-tool="${tool}"]`)?.classList.add('active');
+                document.getElementById('tool').value = tool;
+                
+                this.canvas.style.cursor = tool === 'select' ? 'default' : 'crosshair';
+            }
+
+            async captureScreen() {
+                try {
+                    this.updateStatus('Capturing screen...');
+                    
+                    // In a real implementation, this would use Electron's desktopCapturer
+                    // For now, we'll simulate with a placeholder
+                    const { desktopCapturer } = require('electron');
+                    const sources = await desktopCapturer.getSources({ 
+                        types: ['window', 'screen'], 
+                        thumbnailSize: { width: 1920, height: 1080 } 
+                    });
+                    
+                    const screenSource = sources.find(source => source.name === 'Entire Screen' || source.name === 'Screen 1');
+                    
+                    if (screenSource) {
+                        this.loadImageData(screenSource.thumbnail);
+                        this.updateStatus('Screen captured successfully');
+                    } else {
+                        throw new Error('No screen source found');
+                    }
+                } catch (error) {
+                    console.error('Screen capture failed:', error);
+                    this.updateStatus('Screen capture failed: ' + error.message);
+                    
+                    // Fallback: create a demo canvas
+                    this.createDemoCanvas();
+                }
+            }
+
+            createDemoCanvas() {
+                this.canvas.width = 800;
+                this.canvas.height = 600;
+                this.ctx.fillStyle = '#f0f0f0';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Add some demo content
+                this.ctx.fillStyle = '#333';
+                this.ctx.font = '24px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText('Demo Screenshot', this.canvas.width / 2, this.canvas.height / 2);
+                this.ctx.font = '16px Arial';
+                this.ctx.fillText('This is a demo screenshot for testing', this.canvas.width / 2, this.canvas.height / 2 + 40);
+                
+                this.saveOriginalImageData();
+                this.updateStatus('Demo screenshot created');
+                document.getElementById('instructions').style.display = 'none';
+            }
+
+            loadImage() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                this.loadImageToCanvas(img);
+                                this.updateStatus('Image loaded successfully');
+                            };
+                            img.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+                input.click();
+            }
+
+            loadImageToCanvas(img) {
+                this.canvas.width = img.width;
+                this.canvas.height = img.height;
+                this.ctx.drawImage(img, 0, 0);
+                this.saveOriginalImageData();
+                document.getElementById('instructions').style.display = 'none';
+            }
+
+            loadImageData(imageData) {
+                const img = new Image();
+                img.onload = () => {
+                    this.loadImageToCanvas(img);
+                };
+                img.src = imageData.toDataURL();
+            }
+
+            saveOriginalImageData() {
+                this.originalImageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+            }
+
+            startDrawing(e) {
+                if (this.currentTool === 'select') return;
+                
+                this.isDrawing = true;
+                const rect = this.canvas.getBoundingClientRect();
+                this.startX = e.clientX - rect.left;
+                this.startY = e.clientY - rect.top;
+                
+                this.currentAnnotation = {
+                    tool: this.currentTool,
+                    startX: this.startX,
+                    startY: this.startY,
+                    endX: this.startX,
+                    endY: this.startY,
+                    strokeColor: document.getElementById('strokeColor').value,
+                    fillColor: document.getElementById('fillColor').value,
+                    strokeWidth: parseInt(document.getElementById('strokeWidth').value)
+                };
+            }
+
+            draw(e) {
+                if (!this.isDrawing || !this.currentAnnotation) return;
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+                
+                this.currentAnnotation.endX = currentX;
+                this.currentAnnotation.endY = currentY;
+                
+                // Redraw canvas
+                this.redrawCanvas();
+                this.drawAnnotation(this.currentAnnotation);
+            }
+
+            stopDrawing() {
+                if (!this.isDrawing) return;
+                
+                this.isDrawing = false;
+                if (this.currentAnnotation) {
+                    this.annotations.push(this.currentAnnotation);
+                    this.currentAnnotation = null;
+                }
+            }
+
+            redrawCanvas() {
+                if (this.originalImageData) {
+                    this.ctx.putImageData(this.originalImageData, 0, 0);
+                }
+                
+                // Redraw all annotations
+                this.annotations.forEach(annotation => {
+                    this.drawAnnotation(annotation);
+                });
+            }
+
+            drawAnnotation(annotation) {
+                this.ctx.strokeStyle = annotation.strokeColor;
+                this.ctx.fillStyle = annotation.fillColor;
+                this.ctx.lineWidth = annotation.strokeWidth;
+                this.ctx.lineCap = 'round';
+                this.ctx.lineJoin = 'round';
+                
+                const width = annotation.endX - annotation.startX;
+                const height = annotation.endY - annotation.startY;
+                
+                switch (annotation.tool) {
+                    case 'rectangle':
+                        this.ctx.strokeRect(annotation.startX, annotation.startY, width, height);
+                        if (annotation.fillColor !== 'transparent') {
+                            this.ctx.fillRect(annotation.startX, annotation.startY, width, height);
+                        }
+                        break;
+                        
+                    case 'circle':
+                        const radius = Math.sqrt(width * width + height * height) / 2;
+                        const centerX = annotation.startX + width / 2;
+                        const centerY = annotation.startY + height / 2;
+                        this.ctx.beginPath();
+                        this.ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                        this.ctx.stroke();
+                        if (annotation.fillColor !== 'transparent') {
+                            this.ctx.fill();
+                        }
+                        break;
+                        
+                    case 'line':
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(annotation.startX, annotation.startY);
+                        this.ctx.lineTo(annotation.endX, annotation.endY);
+                        this.ctx.stroke();
+                        break;
+                        
+                    case 'arrow':
+                        this.drawArrow(annotation.startX, annotation.startY, annotation.endX, annotation.endY);
+                        break;
+                        
+                    case 'text':
+                        this.ctx.font = `${annotation.strokeWidth * 4}px Arial`;
+                        this.ctx.fillStyle = annotation.strokeColor;
+                        this.ctx.fillText('Text', annotation.startX, annotation.startY);
+                        break;
+                }
+            }
+
+            drawArrow(fromX, fromY, toX, toY) {
+                const headlen = 15;
+                const angle = Math.atan2(toY - fromY, toX - fromX);
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(fromX, fromY);
+                this.ctx.lineTo(toX, toY);
+                this.ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+                this.ctx.moveTo(toX, toY);
+                this.ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+                this.ctx.stroke();
+            }
+
+            clearCanvas() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.originalImageData = null;
+                this.annotations = [];
+                document.getElementById('instructions').style.display = 'block';
+                this.updateStatus('Canvas cleared');
+            }
+
+            saveImage() {
+                if (!this.originalImageData) {
+                    this.updateStatus('No image to save');
+                    return;
+                }
+                
+                const format = document.getElementById('format').value;
+                const quality = parseInt(document.getElementById('quality').value) / 100;
+                
+                let mimeType;
+                switch (format) {
+                    case 'jpeg':
+                        mimeType = 'image/jpeg';
+                        break;
+                    case 'webp':
+                        mimeType = 'image/webp';
+                        break;
+                    default:
+                        mimeType = 'image/png';
+                }
+                
+                this.canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `screenshot-${Date.now()}.${format}`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    this.updateStatus('Image saved successfully');
+                }, mimeType, quality);
+            }
+
+            async copyToClipboard() {
+                try {
+                    const blob = await new Promise(resolve => this.canvas.toBlob(resolve));
+                    await navigator.clipboard.write([
+                        new ClipboardItem({ 'image/png': blob })
+                    ]);
+                    this.updateStatus('Image copied to clipboard');
+                } catch (error) {
+                    this.updateStatus('Failed to copy to clipboard: ' + error.message);
+                }
+            }
+
+            togglePreview() {
+                document.body.classList.toggle('preview-mode');
+                const isPreview = document.body.classList.contains('preview-mode');
+                this.updateStatus(isPreview ? 'Preview mode' : 'Edit mode');
+            }
+
+            updateStatus(message) {
+                document.getElementById('statusText').textContent = message;
+            }
+
+            updateUI() {
+                this.setTool('select');
+                document.getElementById('qualityValue').textContent = '90%';
+                document.getElementById('strokeColorValue').textContent = '#ff0000';
+                document.getElementById('fillColorValue').textContent = '#ffff00';
+                document.getElementById('strokeWidthValue').textContent = '3px';
+            }
+        }
+
+        // Initialize the screenshot tool when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new ScreenshotTool();
+        });
+    </script>
+</body>
+</html>
