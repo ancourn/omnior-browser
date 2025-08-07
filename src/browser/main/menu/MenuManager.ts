@@ -254,6 +254,16 @@ export class MenuManager {
                     window.webContents.openDevTools();
                   }
                 }
+              },
+              {
+                label: 'Omnior DevConsole',
+                accelerator: 'CmdOrCtrl+Shift+D',
+                click: () => {
+                  const window = BrowserWindow.getFocusedWindow();
+                  if (window) {
+                    window.webContents.send('omnior:openDevConsole');
+                  }
+                }
               }
             ]
           }

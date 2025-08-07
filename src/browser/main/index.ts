@@ -10,6 +10,9 @@ import { SessionManager } from './session/SessionManager';
 import { DownloadManager } from './downloads/DownloadManager';
 import { ToolboxManager } from './toolbox/ToolboxManager';
 import { ExtensionStore } from './store/ExtensionStore';
+import { AIAssistant } from './ai/AIAssistant';
+import { PrivacyManager } from './privacy/PrivacyManager';
+import { createDevConsole } from '../../core/DevConsoleManager';
 
 class OmniorBrowser {
   private windowManager: WindowManager;
@@ -20,6 +23,8 @@ class OmniorBrowser {
   private downloadManager: DownloadManager;
   private toolboxManager: ToolboxManager;
   private extensionStore: ExtensionStore;
+  private aiAssistant: AIAssistant;
+  private privacyManager: PrivacyManager;
   private isQuitting = false;
 
   constructor() {
@@ -30,13 +35,17 @@ class OmniorBrowser {
     this.downloadManager = new DownloadManager();
     this.toolboxManager = new ToolboxManager(app.getPath('userData'));
     this.extensionStore = new ExtensionStore();
+    this.aiAssistant = new AIAssistant(app.getPath('userData'));
+    this.privacyManager = new PrivacyManager(app.getPath('userData'));
     this.ipcHandler = new IPCHandler(
       this.windowManager, 
       this.storageManager, 
       this.sessionManager, 
       this.downloadManager,
       this.toolboxManager,
-      this.extensionStore
+      this.extensionStore,
+      this.aiAssistant,
+      this.privacyManager
     );
   }
 
@@ -145,11 +154,24 @@ class OmniorBrowser {
       }
     });
 
+    // AI Assistant: Cmd/Ctrl + Shift + A
+    globalShortcut.register('CommandOrControl+Shift+A', () => {
+      this.aiAssistant.openAssistant();
+    });
+
     // Developer Tools: Cmd/Ctrl + Shift + I
     globalShortcut.register('CommandOrControl+Shift+I', () => {
       const window = this.windowManager.getFocusedWindow();
       if (window) {
         window.webContents.toggleDevTools();
+      }
+    });
+
+    // Omnior DevConsole: Cmd/Ctrl + Shift + D
+    globalShortcut.register('CommandOrControl+Shift+D', () => {
+      const window = this.windowManager.getFocusedWindow();
+      if (window) {
+        window.webContents.send('omnior:openDevConsole');
       }
     });
   }
@@ -166,6 +188,12 @@ class OmniorBrowser {
     
     // Close all tools
     await this.toolboxManager.closeAllTools();
+    
+    // Close AI Assistant
+    await this.aiAssistant.closeAssistant();
+    
+    // Clean up privacy manager
+    // (Privacy manager cleanup would be implemented here)
     
     // Clean up extension store
     // (Extension store cleanup would be implemented here)

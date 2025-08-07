@@ -1,5 +1,14 @@
 // Core browser types and interfaces
 
+export interface TabGroup {
+  id: string;
+  name: string;
+  color: string;
+  tabIds: string[];
+  createdAt: number;
+  collapsed?: boolean;
+}
+
 export interface Tab {
   id: string;
   url: string;
@@ -10,6 +19,12 @@ export interface Tab {
   isIncognito: boolean;
   createdAt: number;
   lastAccessed: number;
+  // Enhanced tab features
+  groupId?: string;
+  position?: 'left' | 'right' | 'top' | 'bottom';
+  isPinned?: boolean;
+  vpnEnabled?: boolean;
+  vpnCountry?: string;
 }
 
 export interface Bookmark {
@@ -79,6 +94,12 @@ export interface BrowserSettings {
     passwords: boolean;
     formData: boolean;
   };
+  // Enhanced layout settings
+  tabLayout: 'horizontal' | 'vertical';
+  enableSplitView: boolean;
+  splitViewOrientation: 'horizontal' | 'vertical';
+  showTabSearch: boolean;
+  enableTabGroups: boolean;
 }
 
 export interface WindowState {
@@ -193,5 +214,11 @@ export const DEFAULT_SETTINGS: BrowserSettings = {
     history: false,
     passwords: false,
     formData: true
-  }
+  },
+  // Enhanced layout defaults
+  tabLayout: 'horizontal',
+  enableSplitView: false,
+  splitViewOrientation: 'horizontal',
+  showTabSearch: true,
+  enableTabGroups: true
 };

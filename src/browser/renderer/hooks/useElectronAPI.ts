@@ -87,7 +87,40 @@ export const useElectronAPI = () => {
       onTabNavigate: () => {},
 
       // Remove all listeners
-      removeAllListeners: () => {}
+      removeAllListeners: () => {},
+
+      // AI Assistant
+      openAIAssistant: async () => true,
+      closeAIAssistant: async () => true,
+      aiSummarizePage: async () => ({ id: 'mock-response', content: 'Mock summary', confidence: 0.8, timestamp: Date.now() }),
+      aiTranslateContent: async () => ({ id: 'mock-response', content: 'Mock translation', confidence: 0.9, timestamp: Date.now() }),
+      aiAnalyzePage: async () => ({ id: 'mock-response', content: 'Mock analysis', confidence: 0.7, timestamp: Date.now() }),
+      aiExplainContent: async () => ({ id: 'mock-response', content: 'Mock explanation', confidence: 0.8, timestamp: Date.now() }),
+      aiCustomPrompt: async () => ({ id: 'mock-response', content: 'Mock response', confidence: 0.75, timestamp: Date.now() }),
+      aiLearnBehavior: async () => true,
+      getAIStats: async () => ({
+        totalPrompts: 0,
+        totalResponses: 0,
+        totalShortcuts: 0,
+        enabledShortcuts: 0,
+        averageConfidence: 0
+      }),
+      getAIConfig: async () => ({
+        enabled: true,
+        autoSummarize: true,
+        languageDetection: true,
+        contentAnalysis: true,
+        personalizedShortcuts: true,
+        privacyMode: false,
+        maxTokens: 1000,
+        temperature: 0.7
+      }),
+      updateAIConfig: async () => ({}),
+      invoke: async (channel: string, ...args: any[]) => {
+        // Mock implementation for invoke method
+        console.log(`Mock invoke: ${channel}`, args);
+        return null;
+      }
     };
   }
 

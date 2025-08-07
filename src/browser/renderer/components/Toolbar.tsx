@@ -1,5 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, Refresh, Home, Star, Settings, History, BookOpen, Search, Plus, MoreVertical } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Refresh, Home, Star, Settings, History, BookOpen, Search, Plus, MoreVertical, Bot, Shield, Globe, Wrench } from 'lucide-react';
+import { useBrowserStore } from '../store/browserStore';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { SmartShortcuts } from './SmartShortcuts';
 
 interface ToolbarProps {
   onNewTab: () => void;
@@ -9,6 +14,8 @@ interface ToolbarProps {
   onBookmarksClick: () => void;
   onBookmarkPage: () => void;
   onFindClick: () => void;
+  onAIAssistantClick: () => void;
+  onDevConsoleClick: () => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -18,11 +25,21 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onHistoryClick,
   onBookmarksClick,
   onBookmarkPage,
-  onFindClick
+  onFindClick,
+  onAIAssistantClick,
+  onDevConsoleClick
 }) => {
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  const { tabs, activeTab } = useBrowserStore();
+
+  // Calculate VPN status
+  const vpnEnabledTabs = tabs.filter(tab => tab.vpnEnabled).length;
+  const totalTabs = tabs.length;
+  const activeTabVPN = activeTab?.vpnEnabled;
+  const activeTabVPNCountry = activeTab?.vpnCountry;
 
   const handleNavigate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,6 +129,72 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
       {/* Action Buttons */}
       <div className="flex items-center gap-1">
+        {/* Smart Shortcuts */}
+        <SmartShortcuts />
+        
+        {/* VPN Status Indicator */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`vpn-status-indicator ${
+                activeTabVPN ? 'vpn-status-connected' : 'vpn-status-disconnected'
+              }`}
+              title={`VPN: ${activeTabVPN ? `Connected to ${activeTabVPNCountry}` : 'Disconnected'}`}
+            >
+              <Shield className="w-4 h-4" />
+              {vpnEnabledTabs > 0 && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {vpnEnabledTabs}
+                </Badge>
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-64">
+            <div className="p-3">
+              <h4 className="font-medium mb-2">VPN Status</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Active Connections:</span>
+                  <Badge variant={vpnEnabledTabs > 0 ? "default" : "secondary"}>
+                    {vpnEnabledTabs} / {totalTabs}
+                  </Badge>
+                </div>
+                {activeTabVPN && (
+                  <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                    <Globe className="w-4 h-4" />
+                    <span>Current tab: {activeTabVPNCountry}</span>
+                  </div>
+                )}
+                {vpnEnabledTabs === 0 && (
+                  <div className="text-muted-foreground">
+                    No VPN connections active
+                  </div>
+                )}
+              </div>
+            </div>
+            <DropdownMenuSeparator />
+            <div className="p-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => {
+                  // Toggle VPN for all tabs
+                  const allVPNEnabled = vpnEnabledTabs === totalTabs;
+                  tabs.forEach(tab => {
+                    // This would need to be implemented in the store
+                    // For now, it's just a UI demonstration
+                  });
+                }}
+              >
+                {vpnEnabledTabs === totalTabs ? 'Disconnect All' : 'Connect All'}
+              </Button>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        
         <button
           onClick={onFindClick}
           className="btn btn-ghost p-2"
@@ -139,6 +222,20 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           title="History"
         >
           <History className="w-4 h-4" />
+        </button>
+        <button
+          onClick={onAIAssistantClick}
+          className="btn btn-ghost p-2"
+          title="AI Assistant (Ctrl+Shift+A)"
+        >
+          <Bot className="w-4 h-4" />
+        </button>
+        <button
+          onClick={onDevConsoleClick}
+          className="btn btn-ghost p-2"
+          title="DevConsole (Ctrl+Shift+D)"
+        >
+          <Wrench className="w-4 h-4" />
         </button>
         <button
           onClick={onNewTab}

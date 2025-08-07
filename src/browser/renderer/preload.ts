@@ -92,7 +92,21 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Remove all listeners
   removeAllListeners: (channel: string) => {
     ipcRenderer.removeAllListeners(channel);
-  }
+  },
+
+  // AI Assistant
+  openAIAssistant: () => ipcRenderer.invoke('open-ai-assistant'),
+  closeAIAssistant: () => ipcRenderer.invoke('close-ai-assistant'),
+  aiSummarizePage: (content: string, context?: string) => ipcRenderer.invoke('ai-summarize-page', content, context),
+  aiTranslateContent: (content: string, targetLanguage: string, sourceLanguage?: string) => ipcRenderer.invoke('ai-translate-content', content, targetLanguage, sourceLanguage),
+  aiAnalyzePage: (content: string, analysisType: string) => ipcRenderer.invoke('ai-analyze-page', content, analysisType),
+  aiExplainContent: (content: string, context?: string) => ipcRenderer.invoke('ai-explain-content', content, context),
+  aiCustomPrompt: (prompt: string, context?: string) => ipcRenderer.invoke('ai-custom-prompt', prompt, context),
+  aiLearnBehavior: (action: string, context: string) => ipcRenderer.invoke('ai-learn-behavior', action, context),
+  getAIStats: () => ipcRenderer.invoke('get-ai-stats'),
+  getAIConfig: () => ipcRenderer.invoke('get-ai-config'),
+  updateAIConfig: (config: any) => ipcRenderer.invoke('update-ai-config', config),
+  invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args)
 });
 
 // Type definitions for the exposed API
@@ -160,6 +174,20 @@ declare global {
 
       // Remove all listeners
       removeAllListeners: (channel: string) => void;
+
+      // AI Assistant
+      openAIAssistant: () => Promise<boolean>;
+      closeAIAssistant: () => Promise<boolean>;
+      aiSummarizePage: (content: string, context?: string) => Promise<any>;
+      aiTranslateContent: (content: string, targetLanguage: string, sourceLanguage?: string) => Promise<any>;
+      aiAnalyzePage: (content: string, analysisType: string) => Promise<any>;
+      aiExplainContent: (content: string, context?: string) => Promise<any>;
+      aiCustomPrompt: (prompt: string, context?: string) => Promise<any>;
+      aiLearnBehavior: (action: string, context: string) => Promise<boolean>;
+      getAIStats: () => Promise<any>;
+      getAIConfig: () => Promise<any>;
+      updateAIConfig: (config: any) => Promise<any>;
+      invoke: (channel: string, ...args: any[]) => Promise<any>;
     };
   }
 }

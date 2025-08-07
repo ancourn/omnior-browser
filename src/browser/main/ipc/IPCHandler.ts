@@ -5,6 +5,9 @@ import { SessionManager } from '../session/SessionManager';
 import { DownloadManager } from '../downloads/DownloadManager';
 import { ToolboxManager } from '../toolbox/ToolboxManager';
 import { ExtensionStore } from '../store/ExtensionStore';
+import { AIAssistant } from '../ai/AIAssistant';
+import { PrivacyManager } from '../privacy/PrivacyManager';
+import { closeDevConsole, toggleDevConsole } from '../../../core/DevConsoleManager';
 import {
   IPCMessage,
   CreateTabPayload,
@@ -26,6 +29,8 @@ export class IPCHandler {
   private downloadManager: DownloadManager;
   private toolboxManager: ToolboxManager;
   private extensionStore: ExtensionStore;
+  private aiAssistant: AIAssistant;
+  private privacyManager: PrivacyManager;
 
   constructor(
     windowManager: WindowManager, 
@@ -33,7 +38,9 @@ export class IPCHandler {
     sessionManager: SessionManager,
     downloadManager: DownloadManager,
     toolboxManager: ToolboxManager,
-    extensionStore: ExtensionStore
+    extensionStore: ExtensionStore,
+    aiAssistant: AIAssistant,
+    privacyManager: PrivacyManager
   ) {
     this.windowManager = windowManager;
     this.storageManager = storageManager;
@@ -41,6 +48,8 @@ export class IPCHandler {
     this.downloadManager = downloadManager;
     this.toolboxManager = toolboxManager;
     this.extensionStore = extensionStore;
+    this.aiAssistant = aiAssistant;
+    this.privacyManager = privacyManager;
   }
 
   public setupHandlers(): void {
@@ -55,6 +64,9 @@ export class IPCHandler {
     this.setupDownloadHandlers();
     this.setupToolboxHandlers();
     this.setupExtensionHandlers();
+    this.setupAIHandlers();
+    this.setupPrivacyHandlers();
+    this.setupDevConsoleHandlers();
   }
 
   private setupTabHandlers(): void {
@@ -429,6 +441,135 @@ export class IPCHandler {
     // Get extensions by category
     ipcMain.handle('get-extensions-by-category', async (event, category: string) => {
       return this.extensionStore.getExtensionsByCategory(category);
+    });
+  }
+
+  private setupAIHandlers(): void {
+    // Note: AI handlers are already set up in the AIAssistant constructor
+    // This method is for any additional AI-related IPC handlers if needed
+    
+    // Get AI stats
+    ipcMain.handle('get-ai-stats', async () => {
+      return this.aiAssistant.getStats();
+    });
+
+    // Get AI config
+    ipcMain.handle('get-ai-config', async () => {
+      return this.aiAssistant.getConfig();
+    });
+
+    // Update AI config
+    ipcMain.handle('update-ai-config', async (event, newConfig: any) => {
+      await this.aiAssistant.updateConfig(newConfig);
+      return this.aiAssistant.getConfig();
+    });
+
+    // Open AI Assistant
+    ipcMain.handle('open-ai-assistant', async () => {
+      return await this.aiAssistant.openAssistant();
+    });
+
+    // Close AI Assistant
+    ipcMain.handle('close-ai-assistant', async () => {
+      return await this.aiAssistant.closeAssistant();
+    });
+
+    // AI Content Analysis
+    ipcMain.handle('ai-analyze-page', async (event, content: string, analysisType: string) => {
+      return await this.aiAssistant.analyzeContent(content, analysisType);
+    });
+
+    // AI Summarize
+    ipcMain.handle('ai-summarize-page', async (event, content: string, context?: string) => {
+      return await this.aiAssistant.summarizeContent(content, context);
+    });
+
+    // AI Translate
+    ipcMain.handle('ai-translate-content', async (event, content: string, targetLanguage: string, sourceLanguage?: string) => {
+      return await this.aiAssistant.translateContent(content, targetLanguage, sourceLanguage);
+    });
+
+    // AI Explain
+    ipcMain.handle('ai-explain-content', async (event, content: string, context?: string) => {
+      return await this.aiAssistant.explainContent(content, context);
+    });
+
+    // Learn from user behavior
+    ipcMain.handle('ai-learn-behavior', async (event, action: string, context: string) => {
+      await this.aiAssistant.learnFromUserBehavior(action, context);
+      return true;
+    });
+  }
+
+  private setupPrivacyHandlers(): void {
+    // Note: Privacy handlers are already set up in the PrivacyManager constructor
+    // This method is for any additional privacy-related IPC handlers if needed
+    
+    // Get privacy stats
+    ipcMain.handle('get-privacy-stats', async () => {
+      return this.privacyManager.getStats();
+    });
+
+    // Get privacy config
+    ipcMain.handle('get-privacy-config', async () => {
+      return this.privacyManager.getConfig();
+    });
+
+    // Update privacy config
+    ipcMain.handle('update-privacy-config', async (event, newConfig: any) => {
+      await this.privacyManager.updateConfig(newConfig);
+      return this.privacyManager.getConfig();
+    });
+
+    // Get tracking rules
+    ipcMain.handle('get-tracking-rules', async () => {
+      return this.privacyManager.getTrackingRules();
+    });
+
+    // Toggle tracking rule
+    ipcMain.handle('toggle-tracking-rule', async (event, ruleId: string) => {
+      return await this.privacyManager.toggleTrackingRule(ruleId);
+    });
+
+    // Add tracking rule
+    ipcMain.handle('add-tracking-rule', async (event, rule: any) => {
+      return await this.privacyManager.addTrackingRule(rule);
+    });
+
+    // Remove tracking rule
+    ipcMain.handle('remove-tracking-rule', async (event, ruleId: string) => {
+      return await this.privacyManager.removeTrackingRule(ruleId);
+    });
+
+    // Clear browsing data
+    ipcMain.handle('clear-browsing-data', async (event, options: any) => {
+      return await this.privacyManager.clearBrowsingData(options);
+    });
+
+    // Scan page for privacy issues
+    ipcMain.handle('scan-page-privacy', async (event, url: string) => {
+      return await this.privacyManager.scanPageForPrivacyIssues(url);
+    });
+
+    // Reset privacy stats
+    ipcMain.handle('reset-privacy-stats', async () => {
+      await this.privacyManager.resetStats();
+      return this.privacyManager.getStats();
+    });
+  }
+
+  private setupDevConsoleHandlers(): void {
+    // Close DevConsole
+    ipcMain.handle('omnior:closeDevConsole', () => {
+      closeDevConsole();
+    });
+
+    // Toggle DevConsole
+    ipcMain.handle('omnior:toggleDevConsole', (event) => {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (window) {
+        toggleDevConsole(window);
+      }
     });
   }
 
