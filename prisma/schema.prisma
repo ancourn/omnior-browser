@@ -1,0 +1,327 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  preferences UserPreferences?
+  sessions    BrowserSession[]
+  groups      SessionGroup[]
+  rules       SessionRule[]
+  posts       Post[]
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model UserPreferences {
+  id                        String   @id @default(cuid())
+  userId                    String   @unique
+  theme                     String   @default("auto")
+  language                  String   @default("en")
+  timezone                  String   @default("UTC")
+  fontSize                  String   @default("medium")
+  privacyMode               String   @default("standard")
+  searchPreferences         String   @default("{}")
+  collaborationPreferences String   @default("{}")
+  contentAnalysisPreferences String @default("{}")
+  aiPreferences             String   @default("{}")
+  interfacePreferences      String   @default("{}")
+  privacySettings           String   @default("{}")
+  securitySettings          String   @default("{}")
+  notificationSettings      String   @default("{}")
+  customSettings            String   @default("{}")
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model BrowserSession {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String
+  activeTabId  String?
+  windowState  String   // JSON
+  lastAccessed DateTime @default(now())
+  isPinned     Boolean  @default(false)
+  isArchived   Boolean  @default(false)
+  metadata     String   @default("{}") // JSON
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tabs SessionTab[]
+  
+  @@index([userId])
+  @@index([lastAccessed])
+}
+
+model SessionTab {
+  id         String   @id @default(cuid())
+  sessionId  String
+  url        String
+  title      String
+  favicon    String?
+  isActive   Boolean  @default(false)
+  isPinned   Boolean  @default(false)
+  isPrivate  Boolean  @default(false)
+  isLoading  Boolean  @default(false)
+  statusCode Int?
+  lastAccessed DateTime @default(now())
+  thumbnail  String?
+  position   Int
+  metadata   String   @default("{}") // JSON
+  createdAt  DateTime @default(now())
+
+  session BrowserSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  @@index([sessionId])
+  @@index([isActive])
+}
+
+model SessionGroup {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  color       String   @default("#3B82F6")
+  sessionIds  String   @default("[]") // JSON
+  isExpanded  Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+}
+
+model SessionRule {
+  id         String   @id @default(cuid())
+  userId     String
+  name       String
+  conditions String   // JSON
+  actions    String   // JSON
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([isActive])
+}
+
+model DownloadJob {
+  id             String   @id @default(cuid())
+  url            String
+  filename       String
+  contentType    String
+  fileSize       Int
+  status         String   @default("queued")
+  progress       Float    @default(0)
+  speed          Float    @default(0)
+  eta            Int      @default(0)
+  maxConnections Int      @default(4)
+  headers        String   // JSON string
+  mediaType      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  segments       DownloadSegment[]
+}
+
+model DownloadSegment {
+  id        String   @id @default(cuid())
+  jobId     String
+  startByte Int
+  endByte   Int
+  size      Int
+  status    String   @default("pending")
+  retries   Int      @default(0)
+  checksum  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  job       DownloadJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+// Extension Management Models
+model Extension {
+  id            String   @id @default(cuid())
+  name          String
+  version       String
+  description   String
+  author        String
+  homepage      String?
+  icons         String   // JSON string
+  permissions   String   // JSON string array
+  enabled       Boolean  @default(true)
+  installedAt   DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  storage       ExtensionStorage[]
+  settings      ExtensionSetting[]
+}
+
+model ExtensionStorage {
+  id          String   @id @default(cuid())
+  extensionId String
+  area        String   // 'local', 'sync', 'managed'
+  key         String
+  value       String   // JSON string
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  extension   Extension @relation(fields: [extensionId], references: [id], onDelete: Cascade)
+  
+  @@unique([extensionId, area, key])
+}
+
+model ExtensionSetting {
+  id          String   @id @default(cuid())
+  extensionId String
+  key         String
+  value       String   // JSON string
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  extension   Extension @relation(fields: [extensionId], references: [id], onDelete: Cascade)
+  
+  @@unique([extensionId, key])
+}
+
+// Enhanced Download Model for Extension API
+model Download {
+  id                 String   @id @default(cuid())
+  url                String
+  filename           String
+  danger             String   @default("safe")
+  mime               String   @default("application/octet-stream")
+  startTime          DateTime @default(now())
+  endTime            DateTime?
+  estimatedEndTime   DateTime?
+  state              String   @default("in_progress")
+  paused             Boolean  @default(false)
+  canResume          Boolean  @default(false)
+  error              String?
+  totalBytes         Int      @default(0)
+  bytesReceived      Int      @default(0)
+  estimatedTotalBytes Int?
+  fileSize           Int?
+  exists             Boolean  @default(false)
+  headers            String?  // JSON string
+  extensionId        String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// Bookmark Model for Extension API
+model Bookmark {
+  id                String   @id @default(cuid())
+  title             String
+  url               String?
+  parentId          String?
+  index             Int      @default(0)
+  dateAdded         Int      @default(0)
+  dateGroupModified Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  parent            Bookmark? @relation("BookmarkHierarchy", fields: [parentId], references: [id])
+  children          Bookmark[] @relation("BookmarkHierarchy")
+}
+
+// AI Action Execution Model
+model ActionExecution {
+  id          String   @id @default(cuid())
+  actionId    String
+  sessionId   String
+  userId      String?
+  query       String
+  success     Boolean  @default(false)
+  error       String?
+  metadata    String   // JSON string
+  executedAt  DateTime @default(now())
+}
+
+// Workflow Models
+model Workflow {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  version     String   @default("1.0.0")
+  status      String   @default("draft") // draft, active, paused, completed, failed
+  trigger     String   // JSON string
+  steps       String   // JSON string
+  variables   String   // JSON string
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  executions  WorkflowExecution[]
+}
+
+model WorkflowExecution {
+  id          String   @id @default(cuid())
+  workflowId  String
+  status      String   @default("pending") // pending, running, completed, failed, cancelled
+  currentStepId String?
+  variables   String   // JSON string
+  results     String   // JSON string
+  error       String?
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  triggerData String?  // JSON string
+  
+  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+}
+
+// Privacy Models
+model PrivacyScan {
+  id             String   @id @default(cuid())
+  url            String
+  scanDate       DateTime @default(now())
+  risks          String   // JSON string
+  overallScore   Int      @default(0)
+  recommendations String  // JSON string
+  status         String   @default("pending") // pending, scanning, completed, failed
+}
+
+// Productivity Models
+model FocusSession {
+  id             String   @id @default(cuid())
+  userId         String?
+  duration       Int      // in minutes
+  actualDuration Int?     // in minutes
+  tasks          String   // JSON string
+  distractions   String   // JSON string
+  productivity   Int      @default(0) // 0-100
+  startTime      DateTime @default(now())
+  endTime        DateTime?
+  status         String   @default("active") // active, completed, cancelled
+}
