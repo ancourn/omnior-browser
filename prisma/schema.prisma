@@ -49,3 +49,58 @@ model ClipboardItem {
   
   @@map("clipboard_items")
 }
+
+model History {
+  id             String   @id @default(cuid())
+  url            String   @unique
+  title          String?
+  visitTime      DateTime @default(now())
+  visitCount     Int      @default(1)
+  typedCount     Int      @default(0)
+  lastVisitTime  DateTime @default(now())
+  transitionType String   @default("link") // 'link', 'typed', 'auto_bookmark', 'auto_subframe', 'manual_subframe', 'generated', 'auto_toplevel', 'form_submit', 'reload', 'keyword', 'keyword_generated'
+  domain         String
+  category       String?  // AI-categorized: 'news', 'social', 'entertainment', 'education', 'technology', 'shopping', 'finance', 'health', 'travel', 'food', 'sports', 'music', 'video', 'games', 'productivity', 'reference', 'general'
+  tags           String?  // JSON array of tags
+  favicon        String?  // URL to favicon
+  screenshot     String?  // URL to screenshot
+  contentPreview String?  // Text preview of page content
+  aiInsights     String?  // JSON object with AI-generated insights
+  privacyLevel   String   @default("public") // 'public', 'private', 'sensitive'
+  isDeleted      Boolean  @default(false)
+  isStarred      Boolean  @default(false)
+  metadata       String?  // JSON object with additional metadata
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  @@map("history")
+}
+
+model Download {
+  id                   String   @id @default(cuid())
+  url                  String
+  filename             String
+  filePath             String
+  fileSize             Int      @default(0)
+  downloadedSize       Int      @default(0)
+  status               String   @default("pending") // 'pending', 'downloading', 'paused', 'completed', 'failed', 'cancelled'
+  progress             Int      @default(0) // 0-100
+  speed                Int      @default(0) // bytes per second
+  eta                  Int      @default(0) // estimated time in seconds
+  startTime            DateTime?
+  endTime              DateTime?
+  mimeType             String
+  category             String   @default("other") // AI-categorized: 'documents', 'images', 'videos', 'music', 'software', 'games', 'archives', 'ebooks', 'data', 'other'
+  tags                 String?  // JSON array of tags
+  threatLevel          String   @default("safe") // 'safe', 'suspicious', 'dangerous'
+  securityScan         String?  // JSON object with security scan results
+  aiInsights           String?  // JSON object with AI-generated insights
+  bandwidthOptimization String? // JSON object with bandwidth optimization settings
+  metadata             String?  // JSON object with download metadata
+  isDeleted            Boolean  @default(false)
+  isStarred            Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  
+  @@map("downloads")
+}
